@@ -9,6 +9,7 @@ import errorhandling.NotFound;
 import utils.EMF_Creator;
 import facades.ContactFacade;
 import facades.OpportunityFacade;
+import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,6 +37,7 @@ public class OpportunityResource {
     
     @POST
     @Path("/{id}")
+    @RolesAllowed({"user", "admin"})
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addOpportunityToContact(@PathParam("id")int id, String input) throws NotFound {
