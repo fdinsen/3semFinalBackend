@@ -1,30 +1,32 @@
 package facades;
 
+import dto.ContactDTO;
 import utils.EMF_Creator;
-import entities.RenameMe;
+import entities.Contact;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 //Uncomment the line below, to temporarily disable this test
 //@Disabled
-public class FacadeExampleTest {
+public class ContactFacadeTest {
 
     private static EntityManagerFactory emf;
-    private static FacadeExample facade;
+    private static ContactFacade facade;
 
-    public FacadeExampleTest() {
+    public ContactFacadeTest() {
     }
 
     @BeforeAll
     public static void setUpClass() {
        emf = EMF_Creator.createEntityManagerFactoryForTest();
-       facade = FacadeExample.getFacadeExample(emf);
+       facade = ContactFacade.getContactFacade(emf);
     }
 
     @AfterAll
@@ -39,9 +41,8 @@ public class FacadeExampleTest {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("RenameMe.deleteAllRows").executeUpdate();
-            em.persist(new RenameMe("Some txt", "More text"));
-            em.persist(new RenameMe("aaa", "bbb"));
+            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
+            //TODO: Persist Testdata
 
             em.getTransaction().commit();
         } finally {
@@ -54,10 +55,23 @@ public class FacadeExampleTest {
 //        Remove any data after each test was run
     }
 
-    // TODO: Delete or change this method 
-    @Test
-    public void testAFacadeMethod() {
-        assertEquals(2, facade.getRenameMeCount(), "Expects two rows in the database");
-    }
 
+    @Test
+    public void testCreateContact1() {
+        String expectedName = "Karl Smart";
+        String expectedEmail = "karl123@gmail.com";
+        String expectedCompany = "Means Productions";
+        String expectedJobtitle = "Journalist";
+        String expectedPhone = "99118822";
+        ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
+        
+        ContactDTO createdDTO = facade.createContact(toCreate);
+        
+        assertEquals(expectedName, createdDTO.getName());
+        assertEquals(expectedEmail, createdDTO.getEmail());
+        assertEquals(expectedCompany, createdDTO.getCompany());
+        assertEquals(expectedJobtitle, createdDTO.getJobtitle());
+        assertEquals(expectedPhone, createdDTO.getPhone());
+        assertTrue(createdDTO.getId() > 0);
+    }
 }
