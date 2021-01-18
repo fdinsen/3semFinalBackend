@@ -18,6 +18,7 @@ import org.glassfish.grizzly.http.util.HttpStatus;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,7 @@ public class ContactResourceTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static Contact r1, r2;
+    private static Contact c1, c2;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
@@ -70,17 +71,17 @@ public class ContactResourceTest {
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
-//        r1 = null;
-//        r2 = null;
-//        try {
-//            em.getTransaction().begin();
-//            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
-//            em.persist(r1);
-//            em.persist(r2);
-//            em.getTransaction().commit();
-//        } finally {
-//            em.close();
-//        }
+        c1 = new Contact("Jake Peralta", "cool-jake@nypd.gov", "New York Police Department", "Detective", "69420720");
+        c2 = new Contact("Amy Santiago", "asantiago@nypd.gov", "New York Police Department", "Seargant", "98765432");
+        try {
+            em.getTransaction().begin();
+            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
+            em.persist(c1);
+            em.persist(c2);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     @Test
@@ -139,5 +140,15 @@ public class ContactResourceTest {
                 .post("/contact/").then()
                 .assertThat().statusCode(HttpStatus.BAD_REQUEST_400.getStatusCode())
                 .body("message", equalTo("All fields must be set"));
+    }
+    
+    @Test
+    public void testGetAllContacts1() {
+        given()
+                .contentType("application/json")
+                .get("/contact/all/").then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("all.size()", is(2));
     }
 }
