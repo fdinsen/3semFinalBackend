@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.ContactDTO;
 import errorhandling.InvalidInput;
+import errorhandling.NotFound;
 import utils.EMF_Creator;
 import facades.ContactFacade;
 import javax.persistence.EntityManagerFactory;
@@ -11,6 +12,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,6 +46,13 @@ public class ContactResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
         return Response.ok().entity(GSON.toJson(FACADE.getAllContacts())).build();
+    }
+    
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getContact(@PathParam("id") int id) throws NotFound { 
+        return Response.ok().entity(GSON.toJson(FACADE.getContact(id))).build();
     }
 
 }

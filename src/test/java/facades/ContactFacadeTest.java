@@ -5,6 +5,7 @@ import dto.ContactsDTO;
 import utils.EMF_Creator;
 import entities.Contact;
 import errorhandling.InvalidInput;
+import errorhandling.NotFound;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -22,6 +23,7 @@ public class ContactFacadeTest {
 
     private static EntityManagerFactory emf;
     private static ContactFacade facade;
+    private static Contact c1,c2,c3;
 
     public ContactFacadeTest() {
     }
@@ -42,12 +44,15 @@ public class ContactFacadeTest {
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
+        c1 = new Contact("Jake Peralta", "cool-jake@nypd.gov", "New York Police Department", "Detective", "69420720");
+        c2 = new Contact("Amy Santiago", "asantiago@nypd.gov", "New York Police Department", "Seargant", "98765432");
+        c3 = new Contact("Raymond Holt", "rholt@nypd.gov", "New York Police Department", "Captain", "12345678");
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
-            em.persist(new Contact("Jake Peralta", "cool-jake@nypd.gov", "New York Police Department", "Detective", "69420720"));
-            em.persist(new Contact("Amy Santiago", "asantiago@nypd.gov", "New York Police Department", "Seargant", "98765432"));
-            em.persist(new Contact("Raymond Holt", "rholt@nypd.gov", "New York Police Department", "Captain", "12345678"));
+            em.persist(c1);
+            em.persist(c2);
+            em.persist(c3);
 
             em.getTransaction().commit();
         } finally {
@@ -101,5 +106,33 @@ public class ContactFacadeTest {
         ContactsDTO all = facade.getAllContacts();
         
         assertEquals(expectedSize, all.getAll().size());
+    }
+    
+    @Test
+    public void testGetContact1() throws NotFound{
+        String expectedName = "Jake Peralta";
+        String expectedEmail = "cool-jake@nypd.gov";
+        String expectedCompany = "New York Police Department";
+        String expectedJobtitle = "Detective";
+        String expectedPhone = "69420720";
+
+        ContactDTO createdDTO = facade.getContact((c1.getId()));
+
+        assertEquals(expectedName, createdDTO.getName());
+        assertEquals(expectedEmail, createdDTO.getEmail());
+        assertEquals(expectedCompany, createdDTO.getCompany());
+        assertEquals(expectedJobtitle, createdDTO.getJobtitle());
+        assertEquals(expectedPhone, createdDTO.getPhone());
+        assertTrue(createdDTO.getId() > 0);
+    }
+    
+     @Test
+    public void testGetContactMissing1() throws NotFound {
+        NotFound assertThrows;
+
+        assertThrows = Assertions.assertThrows(NotFound.class, () -> {
+            facade.getContact(-1);
+        });
+        Assertions.assertNotNull(assertThrows);
     }
 }

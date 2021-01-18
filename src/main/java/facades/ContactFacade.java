@@ -4,9 +4,11 @@ import dto.ContactDTO;
 import dto.ContactsDTO;
 import entities.Contact;
 import errorhandling.InvalidInput;
+import errorhandling.NotFound;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
@@ -73,4 +75,19 @@ public class ContactFacade {
         }
         return all;
     }
+    
+    public ContactDTO getContact(int id) throws NotFound {
+        EntityManager em = getEntityManager();
+        Contact contact = null;
+        try {
+            TypedQuery<Contact> q = em.createQuery("SELECT c FROM Contact c WHERE c.id=:value", Contact.class);
+            q.setParameter("value", id);
+            contact = q.getSingleResult();
+        }catch(NoResultException ex) {
+            throw new NotFound("No contact found by id " + id); 
+        }finally{
+            em.close();
+        }
+        return new ContactDTO(contact);
+    } 
 }
