@@ -19,10 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 //Uncomment the line below, to temporarily disable this test
-//@Disabled
+@Disabled
 public class OpportunityFacadeTest {
 
     private static EntityManagerFactory emf;
@@ -67,9 +68,8 @@ public class OpportunityFacadeTest {
         c1.addOpportunity(o3);
         try {
             em.getTransaction().begin();
-            em.remove(c1);
-            //em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
-            //em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
+            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
             em.persist(c1);
 
             em.getTransaction().commit();
