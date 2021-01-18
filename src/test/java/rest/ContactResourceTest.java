@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.ContactDTO;
 import entities.Contact;
+import entities.Role;
+import entities.User;
 import utils.EMF_Creator;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
@@ -78,10 +80,36 @@ public class ContactResourceTest {
             em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
             em.persist(c1);
             em.persist(c2);
+
+            em.createQuery("delete from User").executeUpdate();
+            em.createQuery("delete from Role").executeUpdate();
+
+            Role userRole = new Role("user");
+            User user = new User("user", "user");
+            user.addRole(userRole);
+            em.persist(userRole);
+            em.persist(user);
+
             em.getTransaction().commit();
         } finally {
             em.close();
         }
+    }
+
+    //This is how we hold on to the token after login, similar to that a client must store the token somewhere
+    private static String securityToken;
+
+    //Utility method to login and set the returned securityToken
+    private static void login(String role, String password) {
+        String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
+        securityToken = given()
+                .contentType("application/json")
+                .body(json)
+                //.when().post("/api/login")
+                .when().post("/login")
+                .then()
+                .extract().path("token");
+        //System.out.println("TOKEN ---> " + securityToken);
     }
 
     @Test
@@ -102,6 +130,8 @@ public class ContactResourceTest {
 
     @Test
     public void testCreateContact1() {
+        login("user", "user");
+
         String expectedName = "Brian Sej";
         String expectedEmail = "xXbrianXx@gmail.com";
         String expectedCompany = "Brians Fælge";
@@ -112,6 +142,7 @@ public class ContactResourceTest {
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
+                .header("x-access-token", securityToken)
                 .body(GSON.toJson(toCreate))
                 .when()
                 .post("/contact/").then()
@@ -125,6 +156,8 @@ public class ContactResourceTest {
 
     @Test
     public void testCreateContactMissing1() {
+        login("user", "user");
+
         String expectedName = "Brian Sej";
         String expectedEmail = "xXbrianXx@gmail.com";
         String expectedCompany = "Brians Fælge";
@@ -135,6 +168,7 @@ public class ContactResourceTest {
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
+                .header("x-access-token", securityToken)
                 .body(GSON.toJson(toCreate))
                 .when()
                 .post("/contact/").then()
@@ -144,8 +178,10 @@ public class ContactResourceTest {
 
     @Test
     public void testGetAllContacts1() {
+        login("user", "user");
         given()
                 .contentType("application/json")
+                .header("x-access-token", securityToken)
                 .get("/contact/all/").then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
@@ -154,14 +190,17 @@ public class ContactResourceTest {
 
     @Test
     public void testGetContact1() {
+        login("user", "user");
+
         String expectedName = "Jake Peralta";
         String expectedEmail = "cool-jake@nypd.gov";
         String expectedCompany = "New York Police Department";
         String expectedJobtitle = "Detective";
         String expectedPhone = "69420720";
-        
+
         given()
                 .contentType("application/json")
+                .header("x-access-token", securityToken)
                 .get("/contact/" + c1.getId()).then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
@@ -172,14 +211,16 @@ public class ContactResourceTest {
                 .body("phone", equalTo(expectedPhone));
 
     }
-    
+
     @Test
     public void testGetContactMissing1() {
+        login("user", "user");
         int idToGet = 214412;
         given()
                 .contentType("application/json")
+                .header("x-access-token", securityToken)
                 .get("/contact/" + idToGet).then()
                 .assertThat().statusCode(HttpStatus.NOT_FOUND_404.getStatusCode())
-                .body("message", equalTo("No contact found by id " + idToGet) );
+                .body("message", equalTo("No contact found by id " + idToGet));
     }
 }

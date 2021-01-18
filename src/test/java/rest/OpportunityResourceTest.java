@@ -7,6 +7,8 @@ import dto.OpportunityDTO;
 import entities.Contact;
 import entities.Opportunity;
 import entities.OpportunityStatus;
+import entities.Role;
+import entities.User;
 import utils.EMF_Creator;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
@@ -42,7 +44,7 @@ public class OpportunityResourceTest {
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().setDateFormat("dd/MM/YYY").create();
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -82,11 +84,11 @@ public class OpportunityResourceTest {
         o3 = new Opportunity("Purchase of rare sneakers", 350, new Date());
         os1 = new OpportunityStatus("Started");
         os2 = new OpportunityStatus("Finished");
-        
+
         o1.setOpportunityStatus(os2);
         o2.setOpportunityStatus(os1);
         o3.setOpportunityStatus(os2);
-        
+
         c1.addOpportunity(o1);
         c1.addOpportunity(o2);
         c1.addOpportunity(o3);
@@ -95,10 +97,35 @@ public class OpportunityResourceTest {
             em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
             em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
             em.persist(c1);
+
+            em.createQuery("delete from User").executeUpdate();
+            em.createQuery("delete from Role").executeUpdate();
+
+            Role userRole = new Role("user");
+            User user = new User("user", "user");
+            user.addRole(userRole);
+            em.persist(userRole);
+            em.persist(user);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
+    }
+
+    //This is how we hold on to the token after login, similar to that a client must store the token somewhere
+    private static String securityToken;
+
+    //Utility method to login and set the returned securityToken
+    private static void login(String role, String password) {
+        String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
+        securityToken = given()
+                .contentType("application/json")
+                .body(json)
+                //.when().post("/api/login")
+                .when().post("/login")
+                .then()
+                .extract().path("token");
+        //System.out.println("TOKEN ---> " + securityToken);
     }
 
     @Test
@@ -119,6 +146,7 @@ public class OpportunityResourceTest {
 
     @Test
     public void testAddOpportunity1() {
+        login("user", "user");
         String expectedName = "Rent Die Hard 1";
         int expectedAmount = 4;
         Date expectedDate = new Date();
@@ -128,6 +156,7 @@ public class OpportunityResourceTest {
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
+                .header("x-access-token", securityToken)
                 .body(GSON.toJson(toCreate))
                 .when()
                 .post("/opportunity/" + c1.getId()).then()
