@@ -147,6 +147,13 @@ public class Contact implements Serializable {
             o.setContact(this);
         }
     }
+    
+    public void removeOpportunity(Opportunity o) {
+        opportunityList.remove(o);
+        if(o.getContact() == this) {
+            o.setContact(null);
+        }
+    }
 
     private boolean allFieldsAreSet(ContactDTO dto) {
         return !(dto.getName() == null || dto.getName().isEmpty()
