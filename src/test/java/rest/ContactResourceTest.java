@@ -36,7 +36,7 @@ public class ContactResourceTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
-    
+
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static HttpServer startServer() {
@@ -99,7 +99,7 @@ public class ContactResourceTest {
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("msg", equalTo("Hello World"));
     }
-    
+
     @Test
     public void testCreateContact1() {
         String expectedName = "Brian Sej";
@@ -108,7 +108,7 @@ public class ContactResourceTest {
         String expectedJobtitle = "Mekaniker";
         String expectedPhone = "33882277";
         ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
-        
+
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
@@ -122,7 +122,7 @@ public class ContactResourceTest {
                 .body("jobtitle", equalTo(expectedJobtitle)).and()
                 .body("phone", equalTo(expectedPhone));
     }
-    
+
     @Test
     public void testCreateContactMissing1() {
         String expectedName = "Brian Sej";
@@ -131,7 +131,7 @@ public class ContactResourceTest {
         String expectedJobtitle = "Mekaniker";
         String expectedPhone = "";
         ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
-        
+
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
@@ -141,7 +141,7 @@ public class ContactResourceTest {
                 .assertThat().statusCode(HttpStatus.BAD_REQUEST_400.getStatusCode())
                 .body("message", equalTo("All fields must be set"));
     }
-    
+
     @Test
     public void testGetAllContacts1() {
         given()
@@ -150,5 +150,36 @@ public class ContactResourceTest {
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("all.size()", is(2));
+    }
+
+    @Test
+    public void testGetContact1() {
+        String expectedName = "Jake Peralta";
+        String expectedEmail = "cool-jake@nypd.gov";
+        String expectedCompany = "New York Police Department";
+        String expectedJobtitle = "Detective";
+        String expectedPhone = "69420720";
+        
+        given()
+                .contentType("application/json")
+                .get("/contact/" + c1.getId()).then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("name", equalTo(expectedName)).and()
+                .body("email", equalTo(expectedEmail)).and()
+                .body("company", equalTo(expectedCompany)).and()
+                .body("jobtitle", equalTo(expectedJobtitle)).and()
+                .body("phone", equalTo(expectedPhone));
+
+    }
+    
+    @Test
+    public void testGetContactMissing1() {
+        int idToGet = 214412;
+        given()
+                .contentType("application/json")
+                .get("/contact/" + idToGet).then()
+                .assertThat().statusCode(HttpStatus.NOT_FOUND_404.getStatusCode())
+                .body("message", equalTo("No contact found by id " + idToGet) );
     }
 }

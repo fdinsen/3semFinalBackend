@@ -12,7 +12,7 @@ import entities.Contact;
  * @author gamma
  */
 public class ContactDTO {
-    private Long id;
+    private int id;
     
     private String name;
     private String email;
@@ -42,11 +42,11 @@ public class ContactDTO {
     
     
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
