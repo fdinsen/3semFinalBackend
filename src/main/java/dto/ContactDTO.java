@@ -6,23 +6,28 @@
 package dto;
 
 import entities.Contact;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author gamma
  */
 public class ContactDTO {
+
     private int id;
-    
+
     private String name;
     private String email;
     private String company;
     private String jobtitle;
     private String phone;
+    private List<OpportunityDTO> opportunities;
 
     public ContactDTO() {
+        opportunities = new ArrayList();
     }
-    
+
     public ContactDTO(Contact contact) {
         id = contact.getId();
         name = contact.getName();
@@ -30,6 +35,13 @@ public class ContactDTO {
         company = contact.getCompany();
         jobtitle = contact.getJobtitle();
         phone = contact.getPhone();
+
+        opportunities = new ArrayList();
+        if (contact.getOpportunityList() != null) {
+            contact.getOpportunityList().forEach((o) -> {
+                opportunities.add(new OpportunityDTO(o));
+            });
+        }
     }
 
     public ContactDTO(String name, String email, String company, String jobtitle, String phone) {
@@ -38,9 +50,8 @@ public class ContactDTO {
         this.company = company;
         this.jobtitle = jobtitle;
         this.phone = phone;
+        opportunities = new ArrayList();
     }
-    
-    
 
     public int getId() {
         return id;
@@ -89,7 +100,14 @@ public class ContactDTO {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    
-    
+
+    public List<OpportunityDTO> getOpportunities() {
+        return opportunities;
+    }
+
+    public void addOpportunity(OpportunityDTO o) {
+        opportunities.add(o);
+    }
+
     
 }
