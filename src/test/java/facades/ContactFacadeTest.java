@@ -4,8 +4,11 @@ import dto.ContactDTO;
 import dto.ContactsDTO;
 import utils.EMF_Creator;
 import entities.Contact;
+import entities.Opportunity;
+import entities.OpportunityStatus;
 import errorhandling.InvalidInput;
 import errorhandling.NotFound;
+import java.util.Date;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
@@ -49,6 +52,7 @@ public class ContactFacadeTest {
         c3 = new Contact("Raymond Holt", "rholt@nypd.gov", "New York Police Department", "Captain", "12345678");
         try {
             em.getTransaction().begin();
+            em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
             em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
             em.persist(c1);
             em.persist(c2);
