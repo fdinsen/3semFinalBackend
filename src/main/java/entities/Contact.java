@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -87,6 +88,14 @@ public class Contact implements Serializable {
         this.company = company;
         this.jobtitle = jobtitle;
         this.phone = phone;
+    }
+    
+    @PreRemove
+    public void removeContact() {
+        for(int i = 0; i < opportunityList.size() ; i++) {
+            opportunityList.get(i).setContact(null);
+        }
+        opportunityList = new ArrayList();
     }
 
     public int getId() {
