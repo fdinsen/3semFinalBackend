@@ -1,9 +1,13 @@
 package rest;
 
-import entities.RenameMe;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import dto.ContactDTO;
+import entities.Contact;
 import utils.EMF_Creator;
 import io.restassured.RestAssured;
 import static io.restassured.RestAssured.given;
+import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import java.net.URI;
 import javax.persistence.EntityManager;
@@ -22,15 +26,17 @@ import org.junit.jupiter.api.Test;
 //Uncomment the line below, to temporarily disable this test
 //@Disabled
 
-public class RenameMeResourceTest {
+public class ContactResourceTest {
 
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
-    private static RenameMe r1, r2;
+    private static Contact r1, r2;
 
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
+    
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -64,22 +70,22 @@ public class RenameMeResourceTest {
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
-        r1 = new RenameMe("Some txt", "More text");
-        r2 = new RenameMe("aaa", "bbb");
-        try {
-            em.getTransaction().begin();
-            em.createNamedQuery("RenameMe.deleteAllRows").executeUpdate();
-            em.persist(r1);
-            em.persist(r2);
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
+//        r1 = null;
+//        r2 = null;
+//        try {
+//            em.getTransaction().begin();
+//            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
+//            em.persist(r1);
+//            em.persist(r2);
+//            em.getTransaction().commit();
+//        } finally {
+//            em.close();
+//        }
     }
 
     @Test
     public void testServerIsUp() {
-        given().when().get("/xxx").then().statusCode(200);
+        given().when().get("/contact").then().statusCode(200);
     }
 
     //This test assumes the database contains two rows
@@ -87,19 +93,51 @@ public class RenameMeResourceTest {
     public void testDummyMsg() throws Exception {
         given()
                 .contentType("application/json")
-                .get("/xxx/").then()
+                .get("/contact/").then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("msg", equalTo("Hello World"));
     }
-
+    
     @Test
-    public void testCount() throws Exception {
+    public void testCreateContact1() {
+        String expectedName = "Brian Sej";
+        String expectedEmail = "xXbrianXx@gmail.com";
+        String expectedCompany = "Brians Fælge";
+        String expectedJobtitle = "Mekaniker";
+        String expectedPhone = "33882277";
+        ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
+        
         given()
                 .contentType("application/json")
-                .get("/xxx/count").then()
-                .assertThat()
-                .statusCode(HttpStatus.OK_200.getStatusCode())
-                .body("count", equalTo(2));
+                .accept(ContentType.JSON)
+                .body(GSON.toJson(toCreate))
+                .when()
+                .post("/contact/").then()
+                .assertThat().statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("name", equalTo(expectedName)).and()
+                .body("email", equalTo(expectedEmail)).and()
+                .body("company", equalTo(expectedCompany)).and()
+                .body("jobtitle", equalTo(expectedJobtitle)).and()
+                .body("phone", equalTo(expectedPhone));
+    }
+    
+    @Test
+    public void testCreateContactMissing1() {
+        String expectedName = "Brian Sej";
+        String expectedEmail = "xXbrianXx@gmail.com";
+        String expectedCompany = "Brians Fælge";
+        String expectedJobtitle = "Mekaniker";
+        String expectedPhone = "";
+        ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
+        
+        given()
+                .contentType("application/json")
+                .accept(ContentType.JSON)
+                .body(GSON.toJson(toCreate))
+                .when()
+                .post("/contact/").then()
+                .assertThat().statusCode(HttpStatus.BAD_REQUEST_400.getStatusCode())
+                .body("message", equalTo("All fields must be set"));
     }
 }
