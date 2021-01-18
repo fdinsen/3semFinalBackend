@@ -67,8 +67,9 @@ public class OpportunityFacadeTest {
         c1.addOpportunity(o3);
         try {
             em.getTransaction().begin();
-            em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
-            em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
+            em.remove(c1);
+            //em.createNamedQuery("Opportunity.deleteAllRows").executeUpdate();
+            //em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
             em.persist(c1);
 
             em.getTransaction().commit();
