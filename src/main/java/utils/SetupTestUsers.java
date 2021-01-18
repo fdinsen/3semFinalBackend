@@ -38,7 +38,7 @@ public class SetupTestUsers {
     em.persist(adminRole);
     em.persist(user);
     em.persist(admin);
-    em.persist(both);
+    //em.persist(both);
     em.getTransaction().commit();
     System.out.println("PW: " + user.getUserPass());
     System.out.println("Testing user with OK password: " + user.verifyPassword("test123"));

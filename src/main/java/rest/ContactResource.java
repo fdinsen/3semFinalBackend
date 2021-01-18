@@ -7,6 +7,7 @@ import errorhandling.InvalidInput;
 import errorhandling.NotFound;
 import utils.EMF_Creator;
 import facades.ContactFacade;
+import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,6 +34,7 @@ public class ContactResource {
     }
     
     @POST
+    @RolesAllowed({"user", "admin"})
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     public Response createContact(String input) throws InvalidInput {
@@ -42,6 +44,7 @@ public class ContactResource {
     }
     
     @GET
+    @RolesAllowed({"user", "admin"})
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
@@ -49,6 +52,7 @@ public class ContactResource {
     }
     
     @GET
+    @RolesAllowed({"user", "admin"})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getContact(@PathParam("id") int id) throws NotFound { 
