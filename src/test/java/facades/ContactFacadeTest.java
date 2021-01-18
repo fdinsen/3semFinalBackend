@@ -1,6 +1,7 @@
 package facades;
 
 import dto.ContactDTO;
+import dto.ContactsDTO;
 import utils.EMF_Creator;
 import entities.Contact;
 import errorhandling.InvalidInput;
@@ -27,8 +28,8 @@ public class ContactFacadeTest {
 
     @BeforeAll
     public static void setUpClass() {
-       emf = EMF_Creator.createEntityManagerFactoryForTest();
-       facade = ContactFacade.getContactFacade(emf);
+        emf = EMF_Creator.createEntityManagerFactoryForTest();
+        facade = ContactFacade.getContactFacade(emf);
     }
 
     @AfterAll
@@ -44,7 +45,9 @@ public class ContactFacadeTest {
         try {
             em.getTransaction().begin();
             em.createNamedQuery("Contact.deleteAllRows").executeUpdate();
-            //TODO: Persist Testdata
+            em.persist(new Contact("Jake Peralta", "cool-jake@nypd.gov", "New York Police Department", "Detective", "69420720"));
+            em.persist(new Contact("Amy Santiago", "asantiago@nypd.gov", "New York Police Department", "Seargant", "98765432"));
+            em.persist(new Contact("Raymond Holt", "rholt@nypd.gov", "New York Police Department", "Captain", "12345678"));
 
             em.getTransaction().commit();
         } finally {
@@ -57,7 +60,6 @@ public class ContactFacadeTest {
 //        Remove any data after each test was run
     }
 
-
     @Test
     public void testCreateContact1() throws InvalidInput {
         String expectedName = "Karl Smart";
@@ -66,9 +68,9 @@ public class ContactFacadeTest {
         String expectedJobtitle = "Journalist";
         String expectedPhone = "99118822";
         ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
-        
+
         ContactDTO createdDTO = facade.createContact(toCreate);
-        
+
         assertEquals(expectedName, createdDTO.getName());
         assertEquals(expectedEmail, createdDTO.getEmail());
         assertEquals(expectedCompany, createdDTO.getCompany());
@@ -76,7 +78,7 @@ public class ContactFacadeTest {
         assertEquals(expectedPhone, createdDTO.getPhone());
         assertTrue(createdDTO.getId() > 0);
     }
-    
+
     @Test
     public void testCreateContactMissing1() throws InvalidInput {
         InvalidInput assertThrows;
@@ -85,10 +87,19 @@ public class ContactFacadeTest {
         String expectedCompany = "Means Productions";
         String expectedJobtitle = "Journalist";
         ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, null);
-        
+
         assertThrows = Assertions.assertThrows(InvalidInput.class, () -> {
             facade.createContact(toCreate);
         });
         Assertions.assertNotNull(assertThrows);
+    }
+
+    @Test
+    public void testGetAllContacts1() {
+        int expectedSize = 3;
+        
+        ContactsDTO all = facade.getAllContacts();
+        
+        assertEquals(expectedSize, all.getAll().size());
     }
 }

@@ -38,5 +38,12 @@ public class ContactResource {
         ContactDTO outputDTO = FACADE.createContact(inputDTO);
         return Response.ok().entity(GSON.toJson(outputDTO)).build();
     }
+    
+    @GET
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAll() {
+        return Response.ok().entity(GSON.toJson(FACADE.getAllContacts())).build();
+    }
 
 }

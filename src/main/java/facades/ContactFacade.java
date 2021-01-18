@@ -1,12 +1,14 @@
 package facades;
 
 import dto.ContactDTO;
+import dto.ContactsDTO;
 import entities.Contact;
 import errorhandling.InvalidInput;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -56,5 +58,19 @@ public class ContactFacade {
         }
         
         return new ContactDTO(contact);
+    }
+    
+    public ContactsDTO getAllContacts() {
+        EntityManager em = getEntityManager();
+        ContactsDTO all = new ContactsDTO();
+        try {
+            TypedQuery<Contact> q = em.createQuery("SELECT c From Contact c", Contact.class);
+            q.getResultStream().forEach(contact -> {
+                all.addContact(new ContactDTO(contact));
+            });
+        }finally{
+            em.close();
+        }
+        return all;
     }
 }
