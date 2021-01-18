@@ -3,10 +3,12 @@ package facades;
 import dto.ContactDTO;
 import utils.EMF_Creator;
 import entities.Contact;
+import errorhandling.InvalidInput;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,7 +59,7 @@ public class ContactFacadeTest {
 
 
     @Test
-    public void testCreateContact1() {
+    public void testCreateContact1() throws InvalidInput {
         String expectedName = "Karl Smart";
         String expectedEmail = "karl123@gmail.com";
         String expectedCompany = "Means Productions";
@@ -73,5 +75,20 @@ public class ContactFacadeTest {
         assertEquals(expectedJobtitle, createdDTO.getJobtitle());
         assertEquals(expectedPhone, createdDTO.getPhone());
         assertTrue(createdDTO.getId() > 0);
+    }
+    
+    @Test
+    public void testCreateContactMissing1() throws InvalidInput {
+        InvalidInput assertThrows;
+        String expectedName = "Karl Smart";
+        String expectedEmail = "karl123@gmail.com";
+        String expectedCompany = "Means Productions";
+        String expectedJobtitle = "Journalist";
+        ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, null);
+        
+        assertThrows = Assertions.assertThrows(InvalidInput.class, () -> {
+            facade.createContact(toCreate);
+        });
+        Assertions.assertNotNull(assertThrows);
     }
 }

@@ -2,6 +2,7 @@ package facades;
 
 import dto.ContactDTO;
 import entities.Contact;
+import errorhandling.InvalidInput;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -40,7 +41,7 @@ public class ContactFacade {
     //Takes in a dto, containing every field except id
     //Persists the contact in the db, adds id to the object
     //Returns same data in a dto, now including the created id
-    public ContactDTO createContact(ContactDTO dto) {
+    public ContactDTO createContact(ContactDTO dto) throws InvalidInput {
         EntityManager em = getEntityManager();
         Contact contact;
         try {

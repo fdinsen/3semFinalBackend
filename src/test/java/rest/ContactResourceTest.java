@@ -121,4 +121,23 @@ public class ContactResourceTest {
                 .body("jobtitle", equalTo(expectedJobtitle)).and()
                 .body("phone", equalTo(expectedPhone));
     }
+    
+    @Test
+    public void testCreateContactMissing1() {
+        String expectedName = "Brian Sej";
+        String expectedEmail = "xXbrianXx@gmail.com";
+        String expectedCompany = "Brians Fælge";
+        String expectedJobtitle = "Mekaniker";
+        String expectedPhone = "";
+        ContactDTO toCreate = new ContactDTO(expectedName, expectedEmail, expectedCompany, expectedJobtitle, expectedPhone);
+        
+        given()
+                .contentType("application/json")
+                .accept(ContentType.JSON)
+                .body(GSON.toJson(toCreate))
+                .when()
+                .post("/contact/").then()
+                .assertThat().statusCode(HttpStatus.BAD_REQUEST_400.getStatusCode())
+                .body("message", equalTo("All fields must be set"));
+    }
 }

@@ -3,6 +3,7 @@ package rest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dto.ContactDTO;
+import errorhandling.InvalidInput;
 import utils.EMF_Creator;
 import facades.ContactFacade;
 import javax.persistence.EntityManagerFactory;
@@ -32,7 +33,7 @@ public class ContactResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response createContact(String input) {
+    public Response createContact(String input) throws InvalidInput {
         ContactDTO inputDTO = GSON.fromJson(input, ContactDTO.class);
         ContactDTO outputDTO = FACADE.createContact(inputDTO);
         return Response.ok().entity(GSON.toJson(outputDTO)).build();

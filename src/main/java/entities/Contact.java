@@ -1,6 +1,7 @@
 package entities;
 
 import dto.ContactDTO;
+import errorhandling.InvalidInput;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +27,7 @@ public class Contact implements Serializable {
     public Contact() {
     }
 
-    public Contact(ContactDTO dto) {
+    public Contact(ContactDTO dto) throws InvalidInput {
         if (allFieldsAreSet(dto)) {
             name = dto.getName();
             email = dto.getEmail();
@@ -34,7 +35,7 @@ public class Contact implements Serializable {
             jobtitle = dto.getJobtitle();
             phone = dto.getPhone();
         } else {
-            //TODO throw error
+            throw new InvalidInput("All fields must be set");
         }
     }
 
@@ -87,10 +88,10 @@ public class Contact implements Serializable {
     }
 
     private boolean allFieldsAreSet(ContactDTO dto) {
-        return !(dto.getName() == null
-                || dto.getEmail() == null
-                || dto.getCompany() == null
-                || dto.getJobtitle() == null
-                || dto.getPhone() == null);
+        return !(dto.getName() == null || dto.getName().isEmpty()
+                || dto.getEmail() == null || dto.getEmail().isEmpty()
+                || dto.getCompany() == null || dto.getCompany().isEmpty()
+                || dto.getJobtitle() == null || dto.getJobtitle().isEmpty()
+                || dto.getPhone() == null || dto.getPhone().isEmpty());
     }
 }
