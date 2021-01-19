@@ -7,6 +7,8 @@ import utils.EMF_Creator;
 import entities.Contact;
 import entities.Opportunity;
 import entities.OpportunityStatus;
+import entities.Role;
+import entities.User;
 import errorhandling.InvalidInput;
 import errorhandling.NotFound;
 import java.util.Date;
@@ -52,17 +54,17 @@ public class OpportunityFacadeTest {
     @BeforeEach
     public void setUp() {
         EntityManager em = emf.createEntityManager();
-        c1 = new Contact("Jake Peralta", "cool-jake@nypd.gov", "New York Police Department", "Detective", "69420720");
-        o1 = new Opportunity("Tips for a case", 50, new Date());
-        o2 = new Opportunity("Rental of Die Hard 2", 3, new Date());
-        o3 = new Opportunity("Purchase of rare sneakers", 350, new Date());
-        os1 = new OpportunityStatus("Started");
-        os2 = new OpportunityStatus("Finished");
-        
+        c1 = new Contact("Terry Jeffords", "tjeffords@nypd.gov", "New York Police Department", "Lieutenant", "11223344");
+        o1 = new Opportunity("Find rare yoghurt", 30, new Date());
+        o2 = new Opportunity("Expensive yoghurt fridge", 500, new Date());
+        o3 = new Opportunity("Replacement MooMoo", 50, new Date());
+        os1 = new OpportunityStatus("Failed");
+        os2 = new OpportunityStatus("Started");
+
         o1.setOpportunityStatus(os2);
         o2.setOpportunityStatus(os1);
         o3.setOpportunityStatus(os2);
-        
+
         c1.addOpportunity(o1);
         c1.addOpportunity(o2);
         c1.addOpportunity(o3);
